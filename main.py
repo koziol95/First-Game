@@ -20,18 +20,36 @@ WHITE = (255, 255, 255)
 
 FPS = 60
 
+# Images
+SPACE = pygame.transform.scale(pygame.image.load(
+    os.path.join("Assets", "Space.png")), (WIDTH, HEIGHT))
+
 UFO_IMAGE = pygame.image.load(os.path.join("Assets", "UFO.png"))
 UFO = pygame.transform.scale(UFO_IMAGE, (UFO_WIDTH, UFO_HEIGHT))
 
-ROCK_IMAGE = pygame. image.load(os.path.join("Assets", "rock.png"))
+ROCK_IMAGE = pygame. image.load(os.path.join("Assets", "Rock.png"))
 ROCK = pygame.transform.scale(ROCK_IMAGE, (ROCK_WIDTH, ROCK_HEIGH))
+
+###
+VEL = 5
+
 
 #=====================================================================
 def draw_window():
-    WIN.fill(BLACK)
+    WIN.blit(SPACE, (0,0))
     WIN.blit(UFO, (WIDTH//2, HEIGHT//2))
 
     pygame.display.update()
+
+def UFO_HANDLE_MOVMENT(key_passed, ufo):
+    if keys_pressed[pygame.K_LEFT] and ufo.x - VEL + ufo.width > 0:  # LEFT
+        ufo.x -= VEL
+    if keys_pressed[pygame.K_RIGHT] and ufo.x + VEL  < WIDTH - 42 :  # RIGHT
+        ufo.x += VEL
+    if keys_pressed[pygame.K_UP] and ufo.y - VEL > 0:  # UP
+        ufo.y -= VEL
+    if keys_pressed[pygame.K_DOWN] and ufo.y + VEL + ufo.height < HEIGHT:  # DOWN
+        ufo.y += VEL
 
 
 def main():
@@ -47,8 +65,12 @@ def main():
                 run = False
                 pygame.quit()
 
+        keys_pressed = pygame.key.get_pressed()
+        UFO_HANDLE_MOVMENT(keys_pressed, ufo)
+        
+
     
-        draw_window()
+        draw_window(ufo)
 
 if __name__ == "__main__":
     main()
