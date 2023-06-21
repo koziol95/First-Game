@@ -35,20 +35,21 @@ VEL = 5
 
 
 #=====================================================================
-def draw_window():
+def draw_window(ufo):
     WIN.blit(SPACE, (0,0))
-    WIN.blit(UFO, (WIDTH//2, HEIGHT//2))
+
+    WIN.blit(UFO, (ufo.x, ufo.y))
 
     pygame.display.update()
 
-def UFO_HANDLE_MOVMENT(key_passed, ufo):
-    if keys_pressed[pygame.K_LEFT] and ufo.x - VEL + ufo.width > 0:  # LEFT
+def UFO_HANDLE_MOVMENT(keys_pressed, ufo):
+    if keys_pressed[pygame.K_LEFT] and ufo.x - VEL + ufo.width > 0 + 50:  # LEFT
         ufo.x -= VEL
-    if keys_pressed[pygame.K_RIGHT] and ufo.x + VEL  < WIDTH - 42 :  # RIGHT
+    if keys_pressed[pygame.K_RIGHT] and ufo.x + VEL  < WIDTH - 50 :  # RIGHT
         ufo.x += VEL
-    if keys_pressed[pygame.K_UP] and ufo.y - VEL > 0:  # UP
+    if keys_pressed[pygame.K_UP] and ufo.y - VEL > 0 - 5:  # UP
         ufo.y -= VEL
-    if keys_pressed[pygame.K_DOWN] and ufo.y + VEL + ufo.height < HEIGHT:  # DOWN
+    if keys_pressed[pygame.K_DOWN] and ufo.y + VEL + ufo.height < HEIGHT + 2:  # DOWN
         ufo.y += VEL
 
 
