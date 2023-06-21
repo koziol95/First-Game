@@ -1,6 +1,7 @@
 import pygame
 import random
 import os
+import time
 
 #=============================================
 pygame.font.init()
@@ -35,6 +36,13 @@ UFO = pygame.transform.scale(UFO_IMAGE, (UFO_WIDTH, UFO_HEIGHT))
 ROCK_IMAGE = pygame.image.load(os.path.join("Assets", "Rock.png"))
 ROCK = pygame.transform.scale(ROCK_IMAGE, (ROCK_WIDTH, ROCK_HEIGHT))
 
+EXPLOSION_IMAGES = []
+for i in range(1, 8):
+    image = pygame.image.load(os.path.join("Assets", str(i) + ".png"))
+    EXPLOSION_IMAGES.append(image)
+
+# ==================================================================
+
 # Font
 GAME_OVER_FONT = pygame.font.SysFont("comicsans", 80)
 HEALTH_FONT = pygame.font.SysFont("comicsans", 20)
@@ -44,18 +52,21 @@ SCORE_FONT = pygame.font.SysFont("comicsans", 20)
 # Sound
 HIT_SOUND = pygame.mixer.Sound(os.path.join("Assets", "Impact.mp3"))
 EXPLOSION_SOUND = pygame.mixer.Sound(os.path.join("Assets", "explosion.mp3"))
-#===================================================================
+
+# ===================================================================
+
+# txt
+HIGH_SCORES_FILE = "Tablica wyników.txt"
+
 VEL = 5
 
-
-
-#/////////////////////////////////////////////////////////////////////
+# /////////////////////////////////////////////////////////////////////
 def draw_window(ufo, rocks, ufo_health, score):
     WIN.blit(SPACE, (0, 0))
-    
+
     for rock in rocks:
         WIN.blit(ROCK, (rock["rect"].x, rock["rect"].y))
-    
+
     WIN.blit(UFO, (ufo.x, ufo.y))
     ufo_health_text = HEALTH_FONT.render("Health: " + str(ufo_health), 1, WHITE)
     WIN.blit(ufo_health_text, (10, 10))
@@ -63,6 +74,7 @@ def draw_window(ufo, rocks, ufo_health, score):
     WIN.blit(Score, (WIDTH - Score.get_width() - 10, 10))
 
     pygame.display.update()
+
 
 def UFO_HANDLE_MOVEMENT(keys_pressed, ufo):
     if keys_pressed[pygame.K_LEFT] and ufo.x - VEL + ufo.width > 0 + 50:  # LEWO
@@ -73,6 +85,7 @@ def UFO_HANDLE_MOVEMENT(keys_pressed, ufo):
         ufo.y -= VEL
     if keys_pressed[pygame.K_DOWN] and ufo.y + VEL + ufo.height < HEIGHT + 2:  # DÓŁ
         ufo.y += VEL
+
 
 def ROCK_MOVEMENT(rocks):
     for rock in rocks:
@@ -85,6 +98,7 @@ def ROCK_MOVEMENT(rocks):
         if rock["rect"].x <= 0 or rock["rect"].x + ROCK_WIDTH >= WIDTH:
             rock["vel"][0] *= -1
 
+
 def collision(ufo, rocks):
     for rock in rocks:
         if ufo.colliderect(rock["rect"]):
@@ -93,10 +107,27 @@ def collision(ufo, rocks):
             return True
     return False
 
-def draw_game_over():
+
+def explosion_animation(ufo):
+    explosion_frame_delay = 150
+    explosion_frame_count = 7
+    explosion_x = ufo.x - 70
+    explosion_y = ufo.y - 70
+
+    for i in range(explosion_frame_count):
+        WIN.blit(EXPLOSION_IMAGES[i], (explosion_x, explosion_y))
+        pygame.display.update()
+        time.sleep(explosion_frame_delay / 1000)
+    ufo.x = -1000
+    ufo.y = -1000
+
+
+def draw_game_over(scores):
     draw_text = GAME_OVER_FONT.render("GAME OVER", 1, WHITE)
     WIN.blit(draw_text, (WIDTH // 2 - draw_text.get_width() // 2, HEIGHT // 2 - draw_text.get_height() // 2))
     pygame.display.update()
+    
+
 
 def draw_countdown(counter):
     WIN.blit(SPACE, (0, 0))
@@ -104,12 +135,72 @@ def draw_countdown(counter):
     WIN.blit(draw_text, (WIDTH // 2 - draw_text.get_width() // 2, HEIGHT // 2 - draw_text.get_height() // 2))
     pygame.display.update()
 
+
 def draw(text):
-    draw_text = GAME_OVER_FONT.render(text, 1 , WHITE)
-    WIN.blit(draw_text,(WIDTH//2 - draw_text.get_width()/2,
-                          HEIGHT/2 - draw_text.get_height()/2 ))
+    draw_text = GAME_OVER_FONT.render(text, 1, WHITE)
+    WIN.blit(draw_text, (WIDTH // 2 - draw_text.get_width() // 2,
+                         HEIGHT // 2 - draw_text.get_height() // 2))
     pygame.display.update()
     pygame.time.delay(5000)
+
+
+def save_high_scores(scores):
+    with open(HIGH_SCORES_FILE, "w") as file:
+        for score in scores:
+            file.write(str(score) + "\n")
+
+
+def load_high_scores():
+    scores = []
+    if os.path.exists(HIGH_SCORES_FILE):
+        with open(HIGH_SCORES_FILE, "r") as file:
+            for line in file:
+                score = str(line.strip())
+                scores.append(score)
+    return scores
+
+
+def draw_high_scores(scores):
+    y_offset = 150
+    high_scores_title = SCORE_FONT.render("High Scores", 1, WHITE)
+    WIN.blit(high_scores_title, (WIDTH // 2 - high_scores_title.get_width() // 2, 50))
+    for i, score in enumerate(scores):
+        score_text = SCORE_FONT.render(str(score), 1, WHITE)
+        WIN.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, y_offset + i * 30))
+    pygame.display.update()
+
+def draw_enter_name():
+    WIN.blit(SPACE, (0, 0))
+    draw_text = COUNTDOWN_FONT.render("Enter your name:", 1, WHITE)
+    WIN.blit(draw_text, (WIDTH // 2 - draw_text.get_width() // 2, HEIGHT // 2 - draw_text.get_height() // 2))
+    pygame.display.update()
+
+def get_player_name():
+    name = ""
+    text_input_active = True
+
+    while text_input_active:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    text_input_active = False
+                elif event.key == pygame.K_BACKSPACE:
+                    name = name[:-1]
+                else:
+                    name += event.unicode
+
+        WIN.blit(SPACE, (0, 0))
+        draw_text = COUNTDOWN_FONT.render("Enter your name:", 1, WHITE)
+        WIN.blit(draw_text, (WIDTH // 2 - draw_text.get_width() // 2, HEIGHT // 2 - draw_text.get_height() // 2))
+
+        name_text = COUNTDOWN_FONT.render(name, 1, WHITE)
+        WIN.blit(name_text, (WIDTH // 2 - name_text.get_width() // 2, HEIGHT // 2 + name_text.get_height() // 2))
+        pygame.display.update()
+        
+    return name
+
+#////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#===================================================================================================================
 
 def main():
     ufo = pygame.Rect(WIDTH // 2, HEIGHT // 2, UFO_WIDTH, UFO_HEIGHT)
@@ -119,6 +210,7 @@ def main():
     time_counter = 0
     game_over = False
     score = 0
+    scores = load_high_scores()
     ufo_health = 3
 
     while run:
@@ -147,22 +239,41 @@ def main():
             HIT_SOUND.play()
             if ufo_health <= 0:
                 EXPLOSION_SOUND.play()
+                explosion_animation(ufo)
                 game_over = True
 
         draw_window(ufo, rocks, ufo_health, score)
-        if game_over: 
-            draw_game_over()
+
+        if game_over:
+            draw_game_over(scores)
             pygame.time.delay(2000)
+            scores.append((score, get_player_name()))
+            #scores.sort(reverse=True)
+            if len(scores) > 5:
+                scores = scores[:5]
+            
+            if score == scores[0][0]:
+                save_high_scores(scores)
+
             counter = 5
             while counter > 0:
                 draw_countdown(counter)
                 pygame.time.delay(1000)
                 counter -= 1
+            draw_countdown(counter)
+            pygame.time.delay(1000)
+            counter -= 1
+
+            WIN.blit(SPACE, (0, 0))
+            pygame.display.update()
             
+            draw_high_scores(scores)
+            pygame.time.delay(5000)
+
             run = False
         score += 1
 
-    #pygame.quit()
+
     main()
 if __name__ == "__main__":
     main()
