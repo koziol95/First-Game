@@ -35,6 +35,7 @@ ROCK = pygame.transform.scale(ROCK_IMAGE, (ROCK_WIDTH, ROCK_HEIGHT))
 # Font
 GAME_OVER_FONT = pygame.font.SysFont("comicsans", 80)
 HEALTH_FONT = pygame.font.SysFont("comicsans", 40)
+COUNTDOWN_FONT = pygame.font.SysFont("comicsans", 60)
 #===================================================================
 VEL = 5
 
@@ -82,6 +83,17 @@ def collision(ufo, rocks):
             return True
     return False
 
+def draw_game_over():
+    draw_text = GAME_OVER_FONT.render("GAME OVER", 1, WHITE)
+    WIN.blit(draw_text, (WIDTH // 2 - draw_text.get_width() // 2, HEIGHT // 2 - draw_text.get_height() // 2))
+    pygame.display.update()
+
+def draw_countdown(counter):
+    WIN.blit(BLACK, (WIDTH, HEIGHT  ))
+    draw_text = COUNTDOWN_FONT.render(str(counter), 1, WHITE)
+    WIN.blit(draw_text, (WIDTH // 2 - draw_text.get_width() // 2, HEIGHT // 2 - draw_text.get_height() // 2))
+    pygame.display.update()
+
 def draw(text):
     draw_text = GAME_OVER_FONT.render(text, 1 , WHITE)
     WIN.blit(draw_text,(WIDTH//2 - draw_text.get_width()/2,
@@ -127,7 +139,15 @@ def main():
 
         draw_window(ufo, rocks, ufo_health)
         if game_over: 
-            draw("GAME OVER")
+            draw_game_over()
+            pygame.time.delay(5000)
+            counter = 5
+            while counter > 0:
+                draw_countdown(counter)
+                pygame.time.delay(1000)
+                counter -= 1
+            game_over = False
+            ufo_health = 3
 
     #pygame.quit()
     main()
