@@ -1,10 +1,13 @@
 import pygame
 import random
 import os
-#=============================================
-pygame.font.init()
 
 #=============================================
+pygame.font.init()
+pygame.mixer.init()
+
+#=============================================
+
 WIDTH, HEIGHT = 900, 500
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("RUN AWAY")
@@ -37,6 +40,10 @@ GAME_OVER_FONT = pygame.font.SysFont("comicsans", 80)
 HEALTH_FONT = pygame.font.SysFont("comicsans", 20)
 COUNTDOWN_FONT = pygame.font.SysFont("comicsans", 60)
 SCORE_FONT = pygame.font.SysFont("comicsans", 20)
+
+# Sound
+HIT_SOUND = pygame.mixer.Sound(os.path.join("Assets", "Impact.mp3"))
+EXPLOSION_SOUND = pygame.mixer.Sound(os.path.join("Assets", "explosion.mp3"))
 #===================================================================
 VEL = 5
 
@@ -137,7 +144,9 @@ def main():
         ROCK_MOVEMENT(rocks)
         if collision(ufo, rocks):
             ufo_health -= 1
+            HIT_SOUND.play()
             if ufo_health <= 0:
+                EXPLOSION_SOUND.play()
                 game_over = True
 
         draw_window(ufo, rocks, ufo_health, score)
