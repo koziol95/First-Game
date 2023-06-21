@@ -34,15 +34,16 @@ ROCK = pygame.transform.scale(ROCK_IMAGE, (ROCK_WIDTH, ROCK_HEIGHT))
 
 # Font
 GAME_OVER_FONT = pygame.font.SysFont("comicsans", 80)
-HEALTH_FONT = pygame.font.SysFont("comicsans", 40)
+HEALTH_FONT = pygame.font.SysFont("comicsans", 20)
 COUNTDOWN_FONT = pygame.font.SysFont("comicsans", 60)
+SCORE_FONT = pygame.font.SysFont("comicsans", 20)
 #===================================================================
 VEL = 5
 
 
 
 #/////////////////////////////////////////////////////////////////////
-def draw_window(ufo, rocks, ufo_health):
+def draw_window(ufo, rocks, ufo_health, score):
     WIN.blit(SPACE, (0, 0))
     
     for rock in rocks:
@@ -51,6 +52,8 @@ def draw_window(ufo, rocks, ufo_health):
     WIN.blit(UFO, (ufo.x, ufo.y))
     ufo_health_text = HEALTH_FONT.render("Health: " + str(ufo_health), 1, WHITE)
     WIN.blit(ufo_health_text, (10, 10))
+    Score = SCORE_FONT.render("Score: " + str(score), 1, WHITE)
+    WIN.blit(Score, (WIDTH - Score.get_width() - 10, 10))
 
     pygame.display.update()
 
@@ -89,7 +92,7 @@ def draw_game_over():
     pygame.display.update()
 
 def draw_countdown(counter):
-    WIN.blit(BLACK, (WIDTH, HEIGHT  ))
+    WIN.blit(SPACE, (0, 0))
     draw_text = COUNTDOWN_FONT.render(str(counter), 1, WHITE)
     WIN.blit(draw_text, (WIDTH // 2 - draw_text.get_width() // 2, HEIGHT // 2 - draw_text.get_height() // 2))
     pygame.display.update()
@@ -108,7 +111,7 @@ def main():
     run = True
     time_counter = 0
     game_over = False
-
+    score = 0
     ufo_health = 3
 
     while run:
@@ -137,17 +140,18 @@ def main():
             if ufo_health <= 0:
                 game_over = True
 
-        draw_window(ufo, rocks, ufo_health)
+        draw_window(ufo, rocks, ufo_health, score)
         if game_over: 
             draw_game_over()
-            pygame.time.delay(5000)
+            pygame.time.delay(2000)
             counter = 5
             while counter > 0:
                 draw_countdown(counter)
                 pygame.time.delay(1000)
                 counter -= 1
-            game_over = False
-            ufo_health = 3
+            
+            run = False
+        score += 1
 
     #pygame.quit()
     main()
