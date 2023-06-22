@@ -144,10 +144,13 @@ def draw(text):
     pygame.time.delay(5000)
 
 
-def save_high_scores(scores):
+def save_high_scores(scores, score):
+    scores.append((score, get_player_name()))
+    scores.sort(reverse=True)
+    sores = scores[:10]
     with open(HIGH_SCORES_FILE, "w") as file:
         for score in scores:
-            file.write(str(score) + "\n")
+            file.write(str(score[0]) + "\t" + score[1] + "\n")
 
 
 def load_high_scores():
@@ -155,8 +158,13 @@ def load_high_scores():
     if os.path.exists(HIGH_SCORES_FILE):
         with open(HIGH_SCORES_FILE, "r") as file:
             for line in file:
-                score = str(line.strip())
-                scores.append(score)
+                score_parts = line.strip().split("\t")  # Podział linii na części po znaku "\t"
+                if len(score_parts) == 2:
+                    score = int(score_parts[0])
+                    name = score_parts[1]
+                    scores.append((score, name))
+    scores.sort(reverse=True)
+    scores = scores[:10]
     return scores
 
 
@@ -247,13 +255,15 @@ def main():
         if game_over:
             draw_game_over(scores)
             pygame.time.delay(2000)
-            scores.append((score, get_player_name()))
-            #scores.sort(reverse=True)
-            if len(scores) > 5:
-                scores = scores[:5]
-            
-            if score == scores[0][0]:
-                save_high_scores(scores)
+            scores.sort(reverse=True)
+            scores = scores[:10]
+            save_high_scores(scores, score)
+
+            WIN.blit(SPACE, (0, 0))
+            pygame.display.update()
+
+            draw_high_scores(scores)
+            pygame.time.delay(5000)
 
             counter = 5
             while counter > 0:
@@ -264,11 +274,7 @@ def main():
             pygame.time.delay(1000)
             counter -= 1
 
-            WIN.blit(SPACE, (0, 0))
-            pygame.display.update()
             
-            draw_high_scores(scores)
-            pygame.time.delay(5000)
 
             run = False
         score += 1
