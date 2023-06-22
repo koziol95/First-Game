@@ -41,6 +41,9 @@ for i in range(1, 8):
     image = pygame.image.load(os.path.join("Assets", str(i) + ".png"))
     EXPLOSION_IMAGES.append(image)
 
+BLACK_HOLE_IMAGE = pygame.image.load(os.path.join("Assets", "black_hole.png"))
+BLACK_HOLE = pygame.transform.scale(BLACK_HOLE_IMAGE,(60, 60))
+
 # ==================================================================
 
 # Font
@@ -63,6 +66,7 @@ VEL = 5
 # /////////////////////////////////////////////////////////////////////
 def draw_window(ufo, rocks, ufo_health, score):
     WIN.blit(SPACE, (0, 0))
+    WIN.blit(BLACK_HOLE, (95, 95))
 
     for rock in rocks:
         WIN.blit(ROCK, (rock["rect"].x, rock["rect"].y))
