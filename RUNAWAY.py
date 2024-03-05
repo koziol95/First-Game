@@ -12,7 +12,6 @@ pygame.mixer.init()
 WIDTH, HEIGHT = 900, 500
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("RUNAWAY")
-P
 UFO_WIDTH, UFO_HEIGHT = 55, 40
 ROCK_WIDTH, ROCK_HEIGHT = 20, 20
 
